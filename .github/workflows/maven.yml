@@ -26,4 +26,4 @@ jobs:
         echo "Deploying WAR to Tomcat in Lab..."
         curl -T target/insured-assurance.war \
           -u ${{ secrets.TOMCAT_USER }}:${{ secrets.TOMCAT_PASS }} \
-          "http://${{ secrets.TOMCAT_HOST }}:${{ secrets.TOMCAT_PORT }}/manager/text/deploy?path=/insured-assurance&update=true"
+          "https://${{ secrets.TOMCAT_HOST }}:${{ secrets.TOMCAT_PORT }}/manager/text/deploy?path=/insured-assurance&update=true"
