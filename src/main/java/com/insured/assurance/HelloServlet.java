@@ -15,7 +15,7 @@ public class HelloServlet extends HttpServlet {
     resp.setContentType("text/html");
     try (PrintWriter out = resp.getWriter()) {
       out.println("<html><head><title>Insured Assurance</title></head><body>");
-      out.println("<h1>Hello from Insured Assurance App V5</h1>");
+      out.println("<h1>Hello from Insured Assurance App V6</h1>");
       out.println("<p>Deployed via Jenkins to Tomcat</p>");
       out.println("</body></html>");
     }
