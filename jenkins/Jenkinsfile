@@ -1,0 +1,62 @@
+pipeline {
+  agent any
+
+  parameters {
+    string(name: 'GIT_COMMIT', defaultValue: '', description: 'Commit SHA or branch to build (optional)')
+  }
+
+  environment {
+    // Replace with the actual credentials IDs stored in Jenkins Credentials store
+    TOMCAT_CREDENTIALS = 'tomcat-manager-credentials' // username:password
+  }
+
+  stages {
+    stage('Checkout') {
+      steps {
+        script {
+          if (params.GIT_COMMIT?.trim()) {
+            echo "Checking out commit ${params.GIT_COMMIT}"
+            checkout([$class: 'GitSCM',
+                      branches: [[name: params.GIT_COMMIT]],
+                      userRemoteConfigs: [[url: env.GIT_URL ?: 'https://github.com/your-org/your-repo.git']]])
+          } else {
+            checkout scm
+          }
+        }
+      }
+    }
+
+    stage('Build') {
+      steps {
+        sh 'mvn -B clean package'
+        archiveArtifacts artifacts: 'target/*.war', fingerprint: true
+      }
+    }
+
+    stage('Deploy to Tomcat') {
+      steps {
+        withCredentials([usernamePassword(credentialsId: "${TOMCAT_CREDENTIALS}", usernameVariable: 'TOMCAT_USER', passwordVariable: 'TOMCAT_PASS')]) {
+          sh '''
+            WARFILE=$(ls target/*.war | head -n1)
+            if [ -z "$WARFILE" ]; then
+              echo "No WAR file found in target/"
+              exit 1
+            fi
+            echo "Deploying $WARFILE to Tomcat Manager..."
+            # Example Tomcat Manager deploy (requires manager-script role)
+            curl --fail --silent --show-error --upload-file "$WARFILE" "http://$TOMCAT_HOST:8080/manager/text/deploy?path=/insured-assurance&update=true" --user $TOMCAT_USER:$TOMCAT_PASS
+          '''
+        }
+      }
+    }
+  }
+
+  post {
+    success {
+      echo 'Deployment succeeded!'
+    }
+    failure {
+      echo 'Deployment failed!'
+    }
+  }
+}

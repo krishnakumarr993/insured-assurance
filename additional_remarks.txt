@@ -1,0 +1,1 @@
+Project demonstrates GitHub Actions building a Java WAR and invoking a Jenkins job to deploy to Apache Tomcat. Secrets and credentials must be configured in GitHub and Jenkins; ensure Tomcat Manager is enabled and Jenkins has network access. See the included writeup and Jenkinsfile for step-by-step instructions.
